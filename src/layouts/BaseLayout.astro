@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Search from '../components/Search.astro';
 
 interface Props {
   title: string;
@@ -123,6 +124,7 @@ const getPath = (path: string) => {
     <title>{title}</title>
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="progress-bar" id="progress-bar"></div>
     <div class="layout">
       <header class="header">
@@ -134,6 +136,8 @@ const getPath = (path: string) => {
             <a href={getPath('/book-reviews')}>book-reviews</a>
             <a href={getPath('/projects')}>projects</a>
             <a href={getPath('/notes')}>notes</a>
+            <a href={getPath('/tags')}>tags</a>
+            <a href={getPath('/archive')}>archive</a>
             <a href={getPath('/links')}>links</a>
           </div>
           <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
@@ -141,7 +145,7 @@ const getPath = (path: string) => {
           </button>
         </nav>
       </header>
-      <main class="main">
+      <main class="main" id="main-content">
         <slot />
       </main>
       <footer class="footer">
@@ -330,5 +334,6 @@ const getPath = (path: string) => {
         50% { opacity: 0; }
       }
     </style>
+    <Search />
   </body>
 </html>

@@ -1,0 +1,120 @@
+---
+export interface Props {
+  type?: 'note' | 'tip' | 'warning' | 'danger' | 'info';
+  title?: string;
+}
+
+const { type = 'note', title } = Astro.props;
+
+const icons = {
+  note: 'ℹ️',
+  tip: '💡',
+  warning: '⚠️',
+  danger: '🚨',
+  info: '📄'
+};
+
+const labels = {
+  note: 'Note',
+  tip: 'Tip',
+  warning: 'Warning',
+  danger: 'Important',
+  info: 'Info'
+};
+---
+
+<div class={`callout callout-${type}`}>
+  <div class="callout-header">
+    <span class="callout-icon">{icons[type]}</span>
+    <span class="callout-title">{title || labels[type]}</span>
+  </div>
+  <div class="callout-content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .callout {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border-left: 4px solid;
+    background: var(--bg-surface);
+  }
+
+  .callout-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .callout-icon {
+    font-size: 1.2rem;
+  }
+
+  .callout-title {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .callout-content {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .callout-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Type-specific styling */
+  .callout-note {
+    border-left-color: var(--accent-blue);
+  }
+
+  .callout-note .callout-title {
+    color: var(--accent-blue);
+  }
+
+  .callout-tip {
+    border-left-color: var(--accent-green);
+  }
+
+  .callout-tip .callout-title {
+    color: var(--accent-green);
+  }
+
+  .callout-warning {
+    border-left-color: var(--accent-yellow);
+  }
+
+  .callout-warning .callout-title {
+    color: var(--accent-yellow);
+  }
+
+  .callout-danger {
+    border-left-color: var(--accent-red);
+  }
+
+  .callout-danger .callout-title {
+    color: var(--accent-red);
+  }
+
+  .callout-info {
+    border-left-color: var(--accent-mauve);
+  }
+
+  .callout-info .callout-title {
+    color: var(--accent-mauve);
+  }
+
+  html.light .callout-warning .callout-title {
+    color: #b8956a;
+  }
+
+  html.light .callout-danger .callout-title {
+    color: #a66;
+  }
+</style>

@@ -1,0 +1,134 @@
+---
+export interface Props {
+  title: string;
+  url: string;
+  description?: string;
+}
+
+const { title, url, description = '' } = Astro.props;
+
+const encodedTitle = encodeURIComponent(title);
+const encodedUrl = encodeURIComponent(url);
+const encodedDescription = encodeURIComponent(description);
+
+const shareLinks = [
+  {
+    name: 'Twitter',
+    url: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+    icon: '𝕏'
+  },
+  {
+    name: 'LinkedIn',
+    url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    icon: 'in'
+  },
+  {
+    name: 'Hacker News',
+    url: `https://news.ycombinator.com/submitlink?t=${encodedTitle}&u=${encodedUrl}`,
+    icon: 'Y'
+  },
+  {
+    name: 'Reddit',
+    url: `https://reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
+    icon: 'R'
+  }
+];
+---
+
+<div class="share-buttons">
+  <span class="share-label">Share:</span>
+  {shareLinks.map(link => (
+    <a 
+      href={link.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="share-button"
+      aria-label={`Share on ${link.name}`}
+      title={`Share on ${link.name}`}
+    >
+      {link.icon}
+    </a>
+  ))}
+  <button 
+    class="share-button copy-link"
+    aria-label="Copy link to clipboard"
+    title="Copy link"
+    data-url={url}
+  >
+    📋
+  </button>
+</div>
+
+<style>
+  .share-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+    margin: 1.5rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .share-label {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-right: 0.5rem;
+  }
+
+  .share-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+  }
+
+  .share-button:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    color: var(--accent-blue);
+  }
+
+  .copy-link {
+    font-size: 0.9rem;
+  }
+
+  .copy-link.copied {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.copy-link').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const url = target.dataset.url;
+      
+      if (url) {
+        try {
+          await navigator.clipboard.writeText(url);
+          target.classList.add('copied');
+          target.title = 'Copied!';
+          
+          setTimeout(() => {
+            target.classList.remove('copied');
+            target.title = 'Copy link';
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      }
+    });
+  });
+</script>

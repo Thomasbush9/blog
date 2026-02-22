@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import SocialShare from '../../components/SocialShare.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -76,6 +77,12 @@ const tocHeadings = headings.filter(h => h.depth <= 3);
     <div class="content">
       <Content />
     </div>
+    
+    <SocialShare 
+      title={post.data.title}
+      url={`https://thomasbush.github.io/blog/posts/${post.slug}`}
+      description={post.data.description}
+    />
     
     {relatedPosts.length > 0 && (
       <section class="related-posts">
