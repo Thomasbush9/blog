@@ -35,7 +35,14 @@ const readingTime = Math.ceil(words / 200);
 const tocHeadings = headings.filter(h => h.depth <= 3);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout 
+  title={post.data.title} 
+  description={post.data.description}
+  image={post.data.coverUrl}
+  article={true}
+  publishedTime={post.data.pubDate}
+  tags={post.data.tags}
+>
   <article class="post">
     <header class="post-header">
       <a href={getPath('/posts')} class="back-link">← back</a>
