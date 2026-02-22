@@ -1,0 +1,323 @@
+@import 'katex/dist/katex.min.css';
+
+html {
+  color-scheme: dark;
+  --bg-primary: #1e1e2e;
+  --bg-secondary: #181825;
+  --bg-surface: #313244;
+  --bg-muted: #45475a;
+  --text-primary: #cdd6f4;
+  --text-secondary: #a6adc8;
+  --text-muted: #6c7086;
+  --accent-rosewater: #f5e0dc;
+  --accent-flamingo: #f2cdcd;
+  --accent-pink: #f5c2e7;
+  --accent-mauve: #cba6f7;
+  --accent-red: #f38ba8;
+  --accent-maroon: #eba0ac;
+  --accent-peach: #fab387;
+  --accent-yellow: #f9e2af;
+  --accent-green: #a6e3a1;
+  --accent-teal: #94e2d5;
+  --accent-sky: #89dceb;
+  --accent-sapphire: #74c7ec;
+  --accent-blue: #89b4fa;
+  --accent-lavender: #b4befe;
+  --border: #45475a;
+  --border-focus: #89b4fa;
+  --terminal-bg: #11111b;
+  --terminal-header: #313244;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'JetBrains Mono', monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+html.light {
+  color-scheme: light;
+  --bg-primary: #f5f1eb;
+  --bg-secondary: #ede7dc;
+  --bg-surface: #e6dfd1;
+  --bg-muted: #d4c9b7;
+  --text-primary: #3a3630;
+  --text-secondary: #5a554c;
+  --text-muted: #7a7468;
+  --border: #d4c9b7;
+  --border-focus: #8b7355;
+  --terminal-bg: #f0ebe1;
+  --terminal-header: #e6dfd1;
+  --accent-mauve: #8b7355;
+  --accent-blue: #6b7d9c;
+  --accent-peach: #b8956a;
+  --accent-green: #6b8b6b;
+  --accent-sky: #7a8fa8;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+/* External link indicator */
+a[href^="http"]:not([href*="thomasbush.github.io"]):not(.nav-brand):not(.nav-links a)::after {
+  content: " ↗";
+  font-size: 0.75em;
+  opacity: 0.6;
+}
+
+/* Link underline animation */
+a:hover {
+  color: var(--accent-sky);
+}
+
+.prompt {
+  color: var(--accent-green);
+}
+
+html.light .prompt {
+  color: var(--accent-mauve);
+}
+
+a:hover {
+  color: var(--accent-sky);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--bg-surface);
+  padding: 0.2em 0.4em;
+  border-radius: var(--radius-sm);
+}
+
+html.light code {
+  background: #e6dfd1;
+  color: #3a3630;
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--terminal-bg) !important;
+  padding: 1rem;
+  padding-top: 2.5rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  border: 1px solid var(--border);
+}
+
+html.light pre {
+  background: #f0ebe1 !important;
+  border-color: #d4c9b7 !important;
+  color: #3a3630 !important;
+}
+
+pre code {
+  background: transparent !important;
+  padding: 0;
+}
+
+/* Light theme syntax highlighting - override catppuccin-mocha with github-light colors */
+html.light .astro-code {
+  background-color: #f0ebe1 !important;
+  border-color: #d4c9b7 !important;
+}
+
+html.light .astro-code code {
+  color: #3a3630 !important;
+}
+
+/* Override shiki token colors for light mode */
+html.light .astro-code .line {
+  color: #3a3630 !important;
+}
+
+html.light .astro-code [style*="color:#CBA6F7"] {
+  color: #8b7355 !important;
+}
+
+html.light .astro-code [style*="color:#F9E2AF"],
+html.light .astro-code [style*="color:#FAB387"] {
+  color: #b8956a !important;
+}
+
+html.light .astro-code [style*="color:#A6E3A1"],
+html.light .astro-code [style*="color:#94E2D5"] {
+  color: #6b8b6b !important;
+}
+
+html.light .astro-code [style*="color:#F38BA8"] {
+  color: #a66 !important;
+}
+
+html.light .astro-code [style*="color:#89B4FA"],
+html.light .astro-code [style*="color:#74C7EC"] {
+  color: #6b7d9c !important;
+}
+
+html.light .astro-code [style*="color:#F5C2E7"] {
+  color: #a66 !important;
+}
+
+/* Make copy button more visible in light mode */
+.copy-button {
+  opacity: 0.3;
+}
+
+pre:hover .copy-button {
+  opacity: 1;
+}
+
+html.light .copy-button {
+  background: #d4c9b7;
+  border-color: #b8a991;
+  color: #3a3630;
+}
+
+html.light .copy-button:hover {
+  background: #b8a991;
+  color: #2a2621;
+  border-color: #9c8e77;
+}
+
+/* Copy button for code blocks */
+.copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+pre:hover .copy-button {
+  opacity: 1;
+}
+
+.copy-button:hover {
+  color: var(--text-primary);
+  border-color: var(--border-focus);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.5em 0 0.5em;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+p {
+  margin: 0 0 1rem;
+}
+
+ul, ol {
+  margin: 0 0 1rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.25rem;
+}
+
+blockquote {
+  margin: 1rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid var(--accent-mauve);
+  background: var(--bg-surface);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-style: italic;
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  transition: transform 0.2s ease;
+}
+
+img:hover {
+  transform: scale(1.01);
+}
+
+/* Focus styles for accessibility */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent-mauve);
+  outline-offset: 2px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+th, td {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+th {
+  background: var(--bg-surface);
+}
+
+::selection {
+  background: var(--accent-mauve);
+  color: var(--bg-primary);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

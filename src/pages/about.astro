@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About" description="About me">
+  <h1><span class="prompt">$</span> cat about.txt</h1>
+
+  <div class="content">
+    <p>
+      Hi, I'm a technical researcher and developer. I build things, write about them, 
+      and share what I learn along the way.
+    </p>
+
+    <h2>Background</h2>
+    <p>
+      I have experience in software development, systems programming, and technical writing. 
+      I'm passionate about clean code, good documentation, and elegant solutions.
+    </p>
+
+    <h2>Interests</h2>
+    <ul>
+      <li>Systems programming</li>
+      <li>Web development</li>
+      <li>Technical writing</li>
+      <li>Book reviews</li>
+    </ul>
+
+    <h2>Contact</h2>
+    <p>
+      You can find me on <a href="https://github.com" target="_blank" rel="noopener">GitHub</a> 
+      or reach out via email.
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+  }
+
+  .content {
+    max-width: 700px;
+  }
+
+  h2 {
+    margin-top: 2rem;
+  }
+</style>

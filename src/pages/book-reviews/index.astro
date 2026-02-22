@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const bookReviews = (await getCollection('book-reviews'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const basePath = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '') : '';
+const getPath = (path: string) => {
+  if (!basePath) return path;
+  return path === '/' ? `/${basePath}` : `/${basePath}${path}`;
+};
+---
+
+<BaseLayout title="Book Reviews" description="Book reviews">
+  <h1><span class="prompt">$</span> ls book-reviews/</h1>
+  <p class="subtitle">Total: {bookReviews.length} book reviews</p>
+
+  <div class="reviews-grid">
+    {bookReviews.map((review) => (
+      <article class="review-card">
+        <div class="review-header">
+          <h2>{review.data.title}</h2>
+          <span class="author">by {review.data.author}</span>
+        </div>
+        <div class="rating">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span class={i < review.data.rating ? 'star filled' : 'star'}>★</span>
+          ))}
+        </div>
+        <p class="description">{review.data.description}</p>
+        <a href={getPath(`/book-reviews/${review.slug}`)} class="read-more">Read review →</a>
+        <div class="meta">
+          <time datetime={review.data.pubDate.toISOString()}>
+            {review.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </time>
+          {review.data.categories.length > 0 && (
+            <div class="categories">
+              {review.data.categories.map((cat) => (
+                <span class="category">[{cat}]</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </article>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-bottom: 2rem;
+  }
+
+  .reviews-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .review-card {
+    padding: 1.5rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .review-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .author {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .rating {
+    margin: 0.5rem 0;
+  }
+
+  .star {
+    color: var(--bg-muted);
+  }
+
+  .star.filled {
+    color: var(--accent-yellow);
+  }
+
+  .description {
+    color: var(--text-secondary);
+    margin: 0.5rem 0 1rem;
+  }
+
+  .read-more {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .categories {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .category {
+    color: var(--accent-mauve);
+  }
+</style>

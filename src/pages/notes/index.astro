@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const notes = (await getCollection('notes'))
+  .sort((a, b) => b.data.updatedDate.valueOf() - a.data.updatedDate.valueOf());
+
+const basePath = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '') : '';
+const getPath = (path: string) => {
+  if (!basePath) return path;
+  return path === '/' ? `/${basePath}` : `/${basePath}${path}`;
+};
+---
+
+<BaseLayout title="Notes" description="Technical notes">
+  <h1><span class="prompt">$</span> ls notes/</h1>
+  <p class="subtitle">Total: {notes.length} notes</p>
+
+  <ul class="notes-list">
+    {notes.map((note) => (
+      <li>
+        <a href={getPath(`/notes/${note.slug}`)}>
+          <span class="note-title">{note.data.title}</span>
+          <span class="note-date">{note.data.updatedDate.toISOString().split('T')[0]}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-bottom: 2rem;
+  }
+
+  .notes-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .notes-list li {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .notes-list a {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    font-family: var(--font-mono);
+  }
+
+  .notes-list a:hover .note-title {
+    color: var(--accent-sky);
+  }
+
+  .note-date {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+</style>

@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Links" description="Useful links">
+  <h1><span class="prompt">$</span> cat links.txt</h1>
+
+  <ul class="links-list">
+    <li>
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      <span class="description">My GitHub profile</span>
+    </li>
+    <li>
+      <a href="https://twitter.com" target="_blank" rel="noopener">Twitter</a>
+      <span class="description">My Twitter profile</span>
+    </li>
+    <li>
+      <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+      <span class="description">My LinkedIn profile</span>
+    </li>
+    <li>
+      <a href="https://mastodon.social" target="_blank" rel="noopener">Mastodon</a>
+      <span class="description">My Mastodon profile</span>
+    </li>
+  </ul>
+</BaseLayout>
+
+<style>
+  .prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+  }
+
+  .links-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .links-list li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .links-list a {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .description {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+</style>

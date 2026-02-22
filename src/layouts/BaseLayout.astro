@@ -1,0 +1,253 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const { title, description = 'A personal website', image } = Astro.props;
+const basePath = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '') : '';
+const siteUrl = 'https://thomasbush.github.io';
+const fullUrl = basePath ? `${siteUrl}/${basePath}` : siteUrl;
+const getPath = (path: string) => {
+  if (!basePath) return path;
+  return path === '/' ? `/${basePath}` : `/${basePath}${path}`;
+};
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="author" content="Thomas Bush" />
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Personal Site" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    
+    <link rel="icon" type="image/svg+xml" href={getPath('/favicon.svg')} />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed" href={getPath('/rss.xml')} />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="layout">
+      <header class="header">
+        <nav class="nav">
+          <a href={getPath('/')} class="nav-brand">~/home</a>
+          <div class="nav-links">
+            <a href={getPath('/about')}>about</a>
+            <a href={getPath('/posts')}>posts</a>
+            <a href={getPath('/book-reviews')}>book-reviews</a>
+            <a href={getPath('/projects')}>projects</a>
+            <a href={getPath('/notes')}>notes</a>
+            <a href={getPath('/links')}>links</a>
+          </div>
+          <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+            <span class="toggle-icon">◐</span>
+          </button>
+        </nav>
+      </header>
+      <main class="main">
+        <slot />
+      </main>
+      <footer class="footer">
+        <p>thomas@localhost:~$ <span class="cursor">_</span></p>
+      </footer>
+    </div>
+    <script is:inline>
+      // Theme toggle functionality
+      (function() {
+        // Apply saved theme on load
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.classList.add('light');
+        }
+        
+        // Toggle theme on click
+        var toggle = document.getElementById('theme-toggle');
+        if (toggle) {
+          toggle.addEventListener('click', function() {
+            var html = document.documentElement;
+            var isLight = html.classList.toggle('light');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            console.log('Theme changed to:', isLight ? 'light' : 'dark');
+          });
+        }
+      })();
+    </script>
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (typeof renderMathInElement !== 'undefined') {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+            ],
+          });
+        }
+      });
+    </script>
+    <script is:inline>
+      // Reading progress bar
+      window.addEventListener('scroll', function() {
+        var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        var scrolled = (winScroll / height) * 100;
+        var progressBar = document.getElementById('progress-bar');
+        if (progressBar) {
+          progressBar.style.width = scrolled + '%';
+        }
+      });
+    </script>
+    <script is:inline>
+      // Add copy buttons to code blocks
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('pre').forEach(function(pre) {
+          var button = document.createElement('button');
+          button.className = 'copy-button';
+          button.textContent = 'copy';
+          button.setAttribute('aria-label', 'Copy code');
+          
+          pre.style.position = 'relative';
+          pre.appendChild(button);
+          
+          button.addEventListener('click', function() {
+            var code = pre.querySelector('code');
+            var text = code ? code.textContent : pre.textContent;
+            navigator.clipboard.writeText(text).then(function() {
+              button.textContent = 'copied!';
+              setTimeout(function() {
+                button.textContent = 'copy';
+              }, 2000);
+            });
+          });
+        });
+      });
+    </script>
+    <style>
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent-mauve), var(--accent-blue));
+        width: 0%;
+        z-index: 1000;
+        transition: width 0.1s ease-out;
+      }
+
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 1.5rem;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .nav-brand {
+        font-family: var(--font-mono);
+        color: var(--accent-green);
+        font-weight: 600;
+      }
+
+      :global(.light) .nav-brand {
+        color: var(--accent-mauve);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        flex: 1;
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+      }
+
+      .nav-links a:hover {
+        color: var(--text-primary);
+      }
+
+      .theme-toggle {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 0.4rem 0.6rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-size: 1rem;
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--border-focus);
+      }
+
+      .toggle-icon {
+        color: var(--text-primary);
+      }
+
+      :global(.light) .toggle-icon {
+        color: var(--accent-peach);
+      }
+
+      .main {
+        flex: 1;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+
+      .footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-align: center;
+      }
+
+      .cursor {
+        animation: blink 1s step-end infinite;
+        color: var(--accent-green);
+      }
+
+      :global(.light) .cursor {
+        color: var(--accent-mauve);
+      }
+
+      @keyframes blink {
+        50% { opacity: 0; }
+      }
+    </style>
+  </body>
+</html>

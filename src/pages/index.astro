@@ -1,0 +1,216 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const bookReviews = (await getCollection('book-reviews'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const basePath = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '') : '';
+const getPath = (path: string) => {
+  if (!basePath) return path;
+  return path === '/' ? `/${basePath}` : `/${basePath}${path}`;
+};
+---
+
+<BaseLayout title="Home | Personal Site" description="A personal website with posts, projects, and notes">
+  <section class="hero">
+    <h1><span class="prompt">$</span> whoami</h1>
+    <p class="intro">
+      Hi, I'm a technical researcher and developer. This is my personal site where I share 
+      posts, book reviews, projects, and notes.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2><span class="prompt">$</span> ls posts/</h2>
+    <div class="posts-grid">
+      {posts.map((post) => (
+        <a href={getPath(`/posts/${post.slug}`)} class="post-card">
+          {post.data.coverUrl && (
+            <div class="post-cover">
+              <img src={post.data.coverUrl} alt="" loading="lazy" />
+            </div>
+          )}
+          <div class="post-content">
+            <div class="post-meta">
+              <span class="post-date">{post.data.pubDate.toISOString().split('T')[0]}</span>
+              {post.data.categories.length > 0 && (
+                <span class="post-category">[{post.data.categories.join(', ')}]</span>
+              )}
+            </div>
+            <h3 class="post-title">{post.data.title}</h3>
+            <p class="post-description">{post.data.description}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <h2><span class="prompt">$</span> ls book-reviews/</h2>
+    <div class="posts-grid">
+      {bookReviews.map((review) => (
+        <a href={getPath(`/book-reviews/${review.slug}`)} class="post-card">
+          <div class="post-content">
+            <div class="post-meta">
+              <span class="post-date">{review.data.pubDate.toISOString().split('T')[0]}</span>
+              <span class="post-rating">
+                {Array.from({ length: review.data.rating }).map(() => '★')}
+              </span>
+            </div>
+            <h3 class="post-title">{review.data.title}</h3>
+            <p class="post-description">by {review.data.author}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <h2><span class="prompt">$</span> cat quick-links.txt</h2>
+    <div class="links-grid">
+      <a href={getPath('/about')} class="link-card">
+        <span class="link-icon">👤</span>
+        <span>About Me</span>
+      </a>
+      <a href={getPath('/projects')} class="link-card">
+        <span class="link-icon">📁</span>
+        <span>Projects</span>
+      </a>
+      <a href={getPath('/notes')} class="link-card">
+        <span class="link-icon">📝</span>
+        <span>Notes</span>
+      </a>
+      <a href={getPath('/links')} class="link-card">
+        <span class="link-icon">🔗</span>
+        <span>Links</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    margin-bottom: 2rem;
+  }
+
+  .prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+  }
+
+  .intro {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+  }
+
+  .section {
+    margin-top: 2rem;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all 0.15s ease;
+  }
+
+  .post-card:hover {
+    border-color: var(--accent-mauve);
+    transform: translateY(-2px);
+  }
+
+  .post-cover {
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    background: var(--bg-muted);
+  }
+
+  .post-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .post-content {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .post-date {
+    color: var(--text-muted);
+  }
+
+  .post-category {
+    color: var(--accent-mauve);
+  }
+
+  .post-rating {
+    color: var(--accent-yellow);
+  }
+
+  .post-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    color: var(--accent-blue);
+  }
+
+  .post-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-mono);
+    transition: all 0.15s ease;
+  }
+
+  .link-card:hover {
+    border-color: var(--accent-mauve);
+    transform: translateY(-2px);
+  }
+
+  .link-icon {
+    font-size: 1.2rem;
+  }
+</style>

@@ -1,0 +1,388 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+const basePath = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '') : '';
+const getPath = (path: string) => {
+  if (!basePath) return path;
+  return path === '/' ? `/${basePath}` : `/${basePath}${path}`;
+};
+
+const words = post.body?.split(/\s+/).length || 0;
+const readingTime = Math.ceil(words / 200);
+const tocHeadings = headings.filter(h => h.depth <= 3);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article class="post">
+    <header class="post-header">
+      <a href={getPath('/posts')} class="back-link">← back</a>
+      <h1>{post.data.title}</h1>
+      <div class="meta">
+        <time datetime={post.data.pubDate.toISOString()}>
+          {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </time>
+        <span class="reading-time">{readingTime} min read</span>
+        {post.data.tags.length > 0 && (
+          <div class="tags">
+            {post.data.tags.map((tag: string) => <span class="tag">{tag}</span>)}
+          </div>
+        )}
+      </div>
+    </header>
+    
+    {tocHeadings.length > 0 && (
+      <nav class="toc-top">
+        <h2>Contents</h2>
+        <ol>
+          {tocHeadings.map((heading) => (
+            <li class={`toc-level-${heading.depth}`}>
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
+    
+    <div class="content">
+      <Content />
+    </div>
+    
+    <a href="#" class="back-to-top" title="Back to top">↑</a>
+  </article>
+  
+  {tocHeadings.length > 0 && (
+    <nav class="toc-sidebar" id="toc-sidebar">
+      <button class="toc-toggle" id="toc-toggle" aria-label="Toggle table of contents">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </button>
+      <div class="toc-content" id="toc-content">
+        <h3>Contents</h3>
+        <ol>
+          {tocHeadings.map((heading) => (
+            <li class={`toc-level-${heading.depth}`}>
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </nav>
+  )}
+</BaseLayout>
+
+<style>
+  .post {
+    max-width: 720px;
+  }
+
+  .post-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .back-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .reading-time {
+    color: var(--text-muted);
+  }
+
+  .reading-time::before {
+    content: "· ";
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    padding: 0.2rem 0.5rem;
+    background: var(--bg-surface);
+    border-radius: var(--radius-sm);
+  }
+
+  /* Top TOC */
+  .toc-top {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .toc-top h2 {
+    font-size: 1rem;
+    margin: 0 0 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .toc-top ol {
+    padding-left: 1.5rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .toc-top li {
+    margin: 0;
+  }
+
+  .toc-top li a {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .toc-top li a:hover {
+    color: var(--accent-blue);
+  }
+
+  .toc-top .toc-level-3 {
+    padding-left: 1rem;
+    list-style: lower-alpha;
+  }
+
+  .content {
+    line-height: 1.8;
+  }
+
+  .content :global(h2) {
+    margin-top: 2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .content :global(img) {
+    display: block;
+    margin: 2rem auto;
+  }
+
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    z-index: 90;
+  }
+
+  .back-to-top:hover {
+    border-color: var(--accent-mauve);
+    color: var(--accent-mauve);
+    transform: translateY(-2px);
+  }
+
+  /* TOC Sidebar */
+  .toc-sidebar {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+  }
+
+  .toc-toggle {
+    width: 1.5rem;
+    height: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-right: none;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    cursor: pointer;
+    padding: 0.5rem 0.25rem;
+    transition: all 0.2s ease;
+  }
+
+  .toc-toggle:hover {
+    background: var(--bg-muted);
+  }
+
+  .toc-toggle .dot {
+    width: 4px;
+    height: 4px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    transition: background 0.2s ease;
+  }
+
+  .toc-toggle:hover .dot {
+    background: var(--accent-mauve);
+  }
+
+  .toc-content {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    min-width: 200px;
+    max-width: 250px;
+    max-height: 70vh;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .toc-sidebar .toc-content.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .toc-content h3 {
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .toc-content ol {
+    padding-left: 1.25rem;
+    margin: 0;
+  }
+
+  .toc-content li {
+    margin: 0.3rem 0;
+  }
+
+  .toc-content li a {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: block;
+    padding: 0.2rem 0;
+    border-left: 2px solid transparent;
+    padding-left: 0.5rem;
+    transition: all 0.15s ease;
+  }
+
+  .toc-content li a:hover {
+    color: var(--accent-blue);
+    border-left-color: var(--accent-blue);
+  }
+
+  .toc-content li a.active {
+    color: var(--accent-mauve);
+    border-left-color: var(--accent-mauve);
+  }
+
+  .toc-content .toc-level-3 {
+    padding-left: 0.75rem;
+  }
+
+  @media (max-width: 1100px) {
+    .toc-sidebar {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Back to top button
+  const backToTop = document.querySelector('.back-to-top');
+  if (backToTop) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        (backToTop as HTMLElement).style.opacity = '1';
+        (backToTop as HTMLElement).style.visibility = 'visible';
+      } else {
+        (backToTop as HTMLElement).style.opacity = '0';
+        (backToTop as HTMLElement).style.visibility = 'hidden';
+      }
+    });
+  }
+
+  // Toggle TOC visibility on click
+  const tocToggle = document.getElementById('toc-toggle');
+  const tocContent = document.getElementById('toc-content');
+  
+  if (tocToggle && tocContent) {
+    tocToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tocContent.classList.toggle('visible');
+    });
+    
+    // Close TOC when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!tocContent.contains(e.target) && !tocToggle.contains(e.target)) {
+        tocContent.classList.remove('visible');
+      }
+    });
+  }
+
+  // Highlight active TOC item on scroll
+  const tocLinks = document.querySelectorAll('.toc-content a');
+  const headings = document.querySelectorAll('h2[id], h3[id]');
+
+  if (tocLinks.length > 0 && headings.length > 0) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(link => link.classList.remove('active'));
+          const activeLink = document.querySelector(`.toc-content a[href="#${entry.target.id}"]`);
+          if (activeLink) activeLink.classList.add('active');
+        }
+      });
+    }, { 
+      rootMargin: '-10% 0px -80% 0px',
+      threshold: 0
+    });
+
+    headings.forEach(heading => observer.observe(heading));
+  }
+</script>
