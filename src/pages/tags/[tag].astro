@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const bookReviews = await getCollection('book-reviews');
+  
+  const allTags = new Set<string>();
+  
+  posts.forEach(post => {
+    post.data.tags.forEach((tag: string) => allTags.add(tag));
+  });
+  
+  bookReviews.forEach(review => {
+    review.data.tags.forEach((tag: string) => allTags.add(tag));
+  });
+  
+  return Array.from(allTags).map(tag => ({
+    params: { tag: tag.toLowerCase().replace(/\s+/g, '-') },
+    props: { tag },
+  }));
+}
+
+const { tag } = Astro.props;
+const posts = await getCollection('posts');
+const bookReviews = await getCollection('book-reviews');
+
+const filteredPosts = posts.filter(post => 
+  post.data.tags.some((t: string) => t.toLowerCase().replace(/\s+/g, '-') === Astro.params.tag)
+);
+
+const filteredReviews = bookReviews.filter(review =>
+  review.data.tags.some((t: string) => t.toLowerCase().replace(/\s+/g, '-') === Astro.params.tag)
+);
+
+const basePath = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '') : '';
+const getPath = (path: string) => {
+  if (!basePath) return path;
+  return path === '/' ? `/${basePath}` : `/${basePath}${path}`;
+};
+---
+
+<BaseLayout title={`Tag: ${tag}`} description={`Posts tagged with "${tag}"`}>
+  <h1><span class="prompt">$</span> grep "{tag}" .</h1>
+  
+  <a href={getPath('/tags')} class="back-link">← All tags</a>
+  
+  {filteredPosts.length > 0 && (
+    <section class="section">
+      <h2>Posts</h2>
+      <ul class="post-list">
+        {filteredPosts.map(post => (
+          <li>
+            <a href={getPath(`/posts/${post.slug}`)}>{post.data.title}</a>
+            <span class="post-date">{post.data.pubDate.toISOString().split('T')[0]}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+  
+  {filteredReviews.length > 0 && (
+    <section class="section">
+      <h2>Book Reviews</h2>
+      <ul class="post-list">
+        {filteredReviews.map(review => (
+          <li>
+            <a href={getPath(`/book-reviews/${review.slug}`)}>{review.data.title}</a>
+            <span class="post-date">{review.data.pubDate.toISOString().split('T')[0]}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+  
+  {filteredPosts.length === 0 && filteredReviews.length === 0 && (
+    <p class="no-results">No posts found with this tag.</p>
+  )}
+</BaseLayout>
+
+<style>
+  .prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+  }
+
+  html.light .prompt {
+    color: var(--accent-mauve);
+  }
+
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .section {
+    margin-top: 2rem;
+  }
+
+  .section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+  }
+
+  .post-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .post-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+  }
+
+  .post-list a {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--accent-blue);
+  }
+
+  .post-date {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .no-results {
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 2rem;
+  }
+</style>

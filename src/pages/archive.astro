@@ -1,0 +1,121 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts');
+const bookReviews = await getCollection('book-reviews');
+
+const allContent = [...posts, ...bookReviews].sort((a, b) => 
+  b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const groupedByYear = allContent.reduce((acc, item) => {
+  const year = item.data.pubDate.getFullYear();
+  if (!acc[year]) acc[year] = [];
+  acc[year].push(item);
+  return acc;
+}, {} as Record<number, typeof allContent>);
+
+const years = Object.keys(groupedByYear).map(Number).sort((a, b) => b - a);
+
+const basePath = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '') : '';
+const getPath = (path: string) => {
+  if (!basePath) return path;
+  return path === '/' ? `/${basePath}` : `/${basePath}${path}`;
+};
+---
+
+<BaseLayout title="Archive" description="All posts and reviews by date">
+  <h1><span class="prompt">$</span> ls -lt</h1>
+  
+  {years.map(year => (
+    <section class="year-section">
+      <h2 class="year-heading">{year}</h2>
+      <ul class="archive-list">
+        {groupedByYear[year].map(item => (
+          <li class="archive-item">
+            <span class="archive-date">{item.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            <a href={getPath(`/${item.collection}/${item.slug}`)} class="archive-link">
+              {item.data.title}
+            </a>
+            <span class="archive-type">[{item.collection}]</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</BaseLayout>
+
+<style>
+  .prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+  }
+
+  html.light .prompt {
+    color: var(--accent-mauve);
+  }
+
+  .year-section {
+    margin-top: 3rem;
+  }
+
+  .year-heading {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .archive-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .archive-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .archive-date {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-width: 80px;
+  }
+
+  .archive-link {
+    font-family: var(--font-mono);
+    color: var(--accent-blue);
+    text-decoration: none;
+  }
+
+  .archive-link:hover {
+    text-decoration: underline;
+  }
+
+  .archive-type {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 0.15rem 0.5rem;
+    background: var(--bg-surface);
+    border-radius: var(--radius-sm);
+  }
+
+  @media (max-width: 600px) {
+    .archive-item {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+
+    .archive-date {
+      font-size: 0.8rem;
+    }
+  }
+</style>

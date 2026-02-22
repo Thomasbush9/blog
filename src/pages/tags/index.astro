@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts');
+const bookReviews = await getCollection('book-reviews');
+
+const allTags = new Map<string, number>();
+
+posts.forEach(post => {
+  post.data.tags.forEach((tag: string) => {
+    allTags.set(tag, (allTags.get(tag) || 0) + 1);
+  });
+});
+
+bookReviews.forEach(review => {
+  review.data.tags.forEach((tag: string) => {
+    allTags.set(tag, (allTags.get(tag) || 0) + 1);
+  });
+});
+
+const sortedTags = Array.from(allTags.entries()).sort((a, b) => b[1] - a[1]);
+
+const basePath = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '') : '';
+const getPath = (path: string) => {
+  if (!basePath) return path;
+  return path === '/' ? `/${basePath}` : `/${basePath}${path}`;
+};
+---
+
+<BaseLayout title="Tags" description="All tags used across posts and reviews">
+  <h1><span class="prompt">$</span> ls tags/</h1>
+  
+  <div class="tags-container">
+    {sortedTags.map(([tag, count]) => (
+      <a href={getPath(`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`)} class="tag-card">
+        <span class="tag-name">{tag}</span>
+        <span class="tag-count">{count}</span>
+      </a>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+  }
+
+  html.light .prompt {
+    color: var(--accent-mauve);
+  }
+
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .tag-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-family: var(--font-mono);
+  }
+
+  .tag-card:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+  }
+
+  .tag-name {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+  }
+
+  .tag-count {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    background: var(--bg-muted);
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+</style>
