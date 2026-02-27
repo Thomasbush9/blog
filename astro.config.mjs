@@ -6,8 +6,8 @@ import rehypeKatex from 'rehype-katex';
 import remarkImages from 'remark-images';
 
 export default defineConfig({
-  site: 'https://thomasbush.github.io',
-  base: '/blog',
+  site: 'https://thomasbush.ml',
+  base: '/',
   integrations: [mdx()],
   image: {
     domains: ['images.unsplash.com'],
